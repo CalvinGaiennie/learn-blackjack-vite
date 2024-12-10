@@ -4,7 +4,225 @@ import GameControls from "./components/GameControls";
 import Blackjack from "./components/Blackjack";
 import Strategy from "./components/Strategy";
 
-const initialState = { dealerCards: [], playerCards: [], gameStatus: "" };
+const blackjackStrategy = {
+  hardTotals: {
+    8: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    9: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    10: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    11: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    12: {
+      2: "H",
+      3: "H",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    13: {
+      2: "S",
+      3: "S",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    14: {
+      2: "S",
+      3: "S",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    15: {
+      2: "S",
+      3: "S",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    16: {
+      2: "S",
+      3: "S",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    17: {
+      2: "S",
+      3: "S",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "S",
+      8: "S",
+      9: "S",
+      10: "S",
+      11: "S",
+    },
+  },
+  softTotals: {
+    13: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    14: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    15: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    16: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "H",
+      8: "H",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    17: {
+      2: "H",
+      3: "H",
+      4: "H",
+      5: "H",
+      6: "H",
+      7: "S",
+      8: "S",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    18: {
+      2: "S",
+      3: "S",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "S",
+      8: "S",
+      9: "H",
+      10: "H",
+      11: "H",
+    },
+    19: {
+      2: "S",
+      3: "S",
+      4: "S",
+      5: "S",
+      6: "S",
+      7: "S",
+      8: "S",
+      9: "S",
+      10: "S",
+      11: "S",
+    },
+  },
+};
+
+const initialState = {
+  dealerCards: [],
+  playerCards: [],
+  gameStatus: "",
+  dealerTurn: false,
+  dealerDealt: false,
+  strategy: "",
+};
 
 function generateRandomCard() {
   const possibleCards = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11];
@@ -33,10 +251,12 @@ function reducer(state, action) {
       };
     case "dealPlayer":
       return { ...state, playerCards: [...state.playerCards, newCard] };
-    case "dealerTurn":
-      return { ...state };
     case "dealDealer":
       return { ...state, dealerCards: [...state.dealerCards, newCard] };
+    case "dealerTurn":
+      return { ...state, dealerTurn: action.payload };
+    case "dealerDealt":
+      return { ...state, dealerDealt: true };
     case "declareGame":
       return { ...state, gameStatus: action.payload };
     default:
@@ -45,12 +265,13 @@ function reducer(state, action) {
 }
 
 function App() {
-  const [{ dealerCards, playerCards, gameStatus }, dispatch] = useReducer(
-    reducer,
-    initialState
-  );
+  const [
+    { dealerCards, playerCards, gameStatus, dealerTurn, dealerDealt, strategy },
+    dispatch,
+  ] = useReducer(reducer, initialState);
 
   useEffect(() => {
+    console.log("check game called");
     const playerHandStatus = checkHand(playerCards);
     const dealerHandStatus = checkHand(dealerCards);
 
@@ -68,8 +289,40 @@ function App() {
       });
       return;
     }
+    if (dealerDealt === true && dealerHandStatus > playerHandStatus) {
+      dispatch({
+        type: "declareGame",
+        payload: `Dealer wins. Dealer Hand: ${dealerHandStatus}. Player Hand: ${playerHandStatus}`,
+      });
+      return;
+    }
+    if (dealerDealt === true && dealerHandStatus < playerHandStatus) {
+      dispatch({
+        type: "declareGame",
+        payload: `Player wins. Dealer Hand: ${dealerHandStatus}. Player Hand: ${playerHandStatus}`,
+      });
+      return;
+    }
+    if (dealerDealt === true && dealerHandStatus == playerHandStatus) {
+      dispatch({
+        type: "declareGame",
+        payload: `Tie. Dealer Hand: ${dealerHandStatus}. Player Hand: ${playerHandStatus}`,
+      });
+      return;
+    }
     console.log("DealerHand", dealerHandStatus, "PlayerHand", playerHandStatus);
-  }, [playerCards, dealerCards]);
+  }, [playerCards, dealerCards, dealerDealt, dealerTurn]);
+
+  useEffect(() => {
+    const dealerHandStatus = checkHand(dealerCards);
+    if (dealerTurn == true && dealerHandStatus < 16) {
+      dispatch({ type: "dealDealer" });
+      return;
+    } else if (dealerTurn == true && dealerHandStatus >= 16) {
+      dispatch({ type: "dealerDealt" });
+    }
+  }, [dealerTurn, dealerCards]);
+
   return (
     <div>
       <Header />
@@ -79,9 +332,13 @@ function App() {
           dealerCards={dealerCards}
           playerCards={playerCards}
         />
-        <Strategy />
+        <Strategy strategy={strategy} />
       </div>
-      <GameControls dispatch={dispatch} gameStatus={gameStatus} />
+      <GameControls
+        dispatch={dispatch}
+        gameStatus={gameStatus}
+        dealerTurn={dealerTurn}
+      />
     </div>
   );
 }

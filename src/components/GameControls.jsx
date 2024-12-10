@@ -1,4 +1,4 @@
-function GameControls({ dispatch, gameStatus }) {
+function GameControls({ dispatch, gameStatus, dealerTurn }) {
   return (
     <div>
       <h2>Game Controls</h2>
@@ -7,9 +7,14 @@ function GameControls({ dispatch, gameStatus }) {
         Start New Game
       </button>
       <button onClick={() => dispatch({ type: "dealPlayer" })}>Hit</button>
-
-      {/*maybe call a different function here*/}
-      <button onClick={() => dispatch({ type: "dealerTurn" })}>Stay</button>
+      <button
+        onClick={() => {
+          console.log(dealerTurn);
+          dispatch({ type: "dealerTurn", payload: !dealerTurn });
+        }}
+      >
+        Stay
+      </button>
     </div>
   );
 }
